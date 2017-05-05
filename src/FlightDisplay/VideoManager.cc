@@ -37,6 +37,7 @@ VideoManager::VideoManager(QGCApplication* app, QGCToolbox* toolbox)
     , _videoRunning(false)
     , _init(false)
     , _videoSettings(NULL)
+    , _mavlinkVideoManager(NULL)
 {
 }
 
@@ -93,6 +94,8 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
    connect(&_frameTimer, &QTimer::timeout, this, &VideoManager::_updateTimer);
    _frameTimer.start(1000);
 #endif
+
+   _mavlinkVideoManager = new MAVLinkVideoManager();
 }
 
 void VideoManager::_videoSourceChanged(void)
