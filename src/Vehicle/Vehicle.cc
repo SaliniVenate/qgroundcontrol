@@ -1150,6 +1150,7 @@ void Vehicle::_linkInactiveOrDeleted(LinkInterface* link)
 
 bool Vehicle::sendMessageOnLink(LinkInterface* link, mavlink_message_t message)
 {
+    qDebug() << "Function Name: " << Q_FUNC_INFO;
     if (!link || !_links.contains(link) || !link->isConnected()) {
         return false;
     }
@@ -1161,6 +1162,7 @@ bool Vehicle::sendMessageOnLink(LinkInterface* link, mavlink_message_t message)
 
 void Vehicle::_sendMessageOnLink(LinkInterface* link, mavlink_message_t message)
 {
+    qDebug() << "Function Name: " << Q_FUNC_INFO;
     // Make sure this is still a good link
     if (!link || !_links.contains(link) || !link->isConnected()) {
         return;

@@ -30,7 +30,7 @@ public:
 
 private slots:
     void _mavlinkMessageReceived(LinkInterface *link, mavlink_message_t message);
-    void _videoHeartbeatInfo(LinkInterface *link, int systemId);
+    void _videoHeartbeatInfo(LinkInterface *link, mavlink_message_t message);
 
 private:
     int _cameraId;

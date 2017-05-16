@@ -37,27 +37,47 @@ MAVLinkVideoManager::~MAVLinkVideoManager()
 }
 
 //-----------------------------------------------------------------------------
-void
-MAVLinkVideoManager::_videoHeartbeatInfo(LinkInterface *link, int systemId)
+
+/**
+ * @brief MAVLinkVideoManager::_videoHeartbeatInfo
+ * @param link
+ * @param message
+ */
+void MAVLinkVideoManager::_videoHeartbeatInfo(LinkInterface *link, mavlink_message_t message)
 {
-    if (systemId == _cameraId)
+
+    if (message.compid == _cameraId)
         return;
 
     qDebug() << "MAVLinkVideoManager: First camera heartbeat info received";
-    _cameraId = systemId;
+    qDebug() << "Heartbeat Recieved:"<<message.msgid;
+    _cameraId = message.compid;
     _cameraLink = link;
 
-    //TODO: Send message requesting cameras (MAV_CMD_REQUEST_CAMERA_INFORMATION)
+    mavlink_message_t msg;
+    mavlink_msg_command_long_pack(255, MAV_COMP_ID_ALL, &msg, 1, MAV_COMP_ID_CAMERA, MAV_CMD_REQUEST_CAMERA_INFORMATION, 0, 1, 0, 0, 0, 0, 0, 0);
+
+    uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
+    int len = mavlink_msg_to_send_buffer(buffer, &msg);
+
+    _cameraLink->writeBytesSafe((const char*)buffer, len);
+    qDebug() << "Request camera information sent:"<<msg.msgid;
+    return;
 }
 
-//-----------------------------------------------------------------------------
-void
-MAVLinkVideoManager::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t message)
+/**
+ * @brief MAVLinkVideoManager::_mavlinkMessageReceived
+ * @param link
+ * @param message
+ */
+void MAVLinkVideoManager::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t message)
 {
-    if (message.sysid != _cameraId)
+
+    qDebug() << "Message received"<<message.msgid;
+    if (message.compid != _cameraId)
         return;
-
-    qDebug() << "Message received";
-
-    //TODO: Handle received messages like CAMERA_INFORMATION and VIDEO_STREAM_INFORMATION
+    mavlink_camera_information_t info;
+    mavlink_msg_camera_information_decode(&message, &info);
+    qDebug()<<"Camera found:@ id:"<<info.camera_id;
+    qDebug()<<"model:"<<(const char *)info.model_name;
 }
