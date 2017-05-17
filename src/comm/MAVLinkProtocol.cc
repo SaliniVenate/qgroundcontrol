@@ -169,10 +169,6 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
 //    receiveMutex.lock();
     mavlink_message_t message;
     mavlink_status_t status;
-/*   if(message.msgid == MAVLINK_MSG_ID_CAMERA_INFORMATION)
-    {   qDebug()<<"******Camera Info rexed!!************";
-
-    }*/
 
     int mavlinkChannel = link->mavlinkChannel();
 
