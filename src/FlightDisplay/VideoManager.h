@@ -15,6 +15,7 @@
 #include <QTimer>
 #include <QUrl>
 
+#include "MAVLinkVideoManager.h"
 #include "QGCLoggingCategory.h"
 #include "VideoSurface.h"
 #include "VideoReceiver.h"
@@ -89,6 +90,7 @@ private:
     QString         _videoSourceID;
     bool            _init;
     VideoSettings*  _videoSettings;
+    MAVLinkVideoManager* _mavlinkVideoManager;
 };
 
 #endif

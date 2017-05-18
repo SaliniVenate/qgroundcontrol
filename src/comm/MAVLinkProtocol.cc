@@ -151,6 +151,7 @@ void MAVLinkProtocol::resetMetadataForLink(const LinkInterface *link)
  **/
 void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
 {
+
     // Since receiveBytes signals cross threads we can end up with signals in the queue
     // that come through after the link is disconnected. For these we just drop the data
     // since the link is closed.
@@ -242,7 +243,11 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
                 _startLogging();
                 mavlink_heartbeat_t heartbeat;
                 mavlink_msg_heartbeat_decode(&message, &heartbeat);
-                emit vehicleHeartbeatInfo(link, message.sysid, message.compid, heartbeat.mavlink_version, heartbeat.autopilot, heartbeat.type);
+
+                if (message.compid == MAV_COMP_ID_CAMERA) {
+                    emit videoHeartbeatInfo(link, message);
+                } else
+                    emit vehicleHeartbeatInfo(link, message.sysid, message.compid, heartbeat.mavlink_version, heartbeat.autopilot, heartbeat.type);
             }
 
             // Increase receive counter
@@ -288,10 +293,13 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
                 emit receiveLossTotalChanged(message.sysid, totalLossCounter[mavlinkChannel]);
             }
 
+
+
             // The packet is emitted as a whole, as it is only 255 - 261 bytes short
             // kind of inefficient, but no issue for a groundstation pc.
             // It buys as reentrancy for the whole code over all threads
-            emit messageReceived(link, message);
+            if(message.msgid != MAVLINK_MSG_ID_HEARTBEAT )
+               emit messageReceived(link, message);
         }
     }
 }

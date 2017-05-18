@@ -504,6 +504,7 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         break;
     case MAVLINK_MSG_ID_HEARTBEAT:
         _handleHeartbeat(message);
+
         break;
     case MAVLINK_MSG_ID_RADIO_STATUS:
         _handleRadioStatus(message);
@@ -963,9 +964,18 @@ void Vehicle::_handleHomePosition(mavlink_message_t& message)
 
 void Vehicle::_handleHeartbeat(mavlink_message_t& message)
 {
-    if (message.compid != _defaultComponentId) {
+
+    if(message.compid == MAV_COMP_ID_CAMERA)
+    {
+        qDebug()<<"CSD HEARTBEAT HERE!";
         return;
     }
+    if (message.compid != _defaultComponentId ) {
+            return;
+        }
+
+    //qDebug()<<"HEARTBEAT DETECTED HERE!";
+
 
     mavlink_heartbeat_t heartbeat;
 
@@ -1197,6 +1207,7 @@ void Vehicle::_linkInactiveOrDeleted(LinkInterface* link)
 
 bool Vehicle::sendMessageOnLink(LinkInterface* link, mavlink_message_t message)
 {
+    qDebug() << "Function Name: " << Q_FUNC_INFO;
     if (!link || !_links.contains(link) || !link->isConnected()) {
         return false;
     }
@@ -1208,6 +1219,7 @@ bool Vehicle::sendMessageOnLink(LinkInterface* link, mavlink_message_t message)
 
 void Vehicle::_sendMessageOnLink(LinkInterface* link, mavlink_message_t message)
 {
+    qDebug() << "Function Name: " << Q_FUNC_INFO;
     // Make sure this is still a good link
     if (!link || !_links.contains(link) || !link->isConnected()) {
         return;
