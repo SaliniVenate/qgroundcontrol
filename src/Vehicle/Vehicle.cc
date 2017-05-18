@@ -965,11 +965,6 @@ void Vehicle::_handleHomePosition(mavlink_message_t& message)
 void Vehicle::_handleHeartbeat(mavlink_message_t& message)
 {
 
-    if(message.compid == MAV_COMP_ID_CAMERA)
-    {
-        qDebug()<<"CSD HEARTBEAT HERE!";
-        return;
-    }
     if (message.compid != _defaultComponentId ) {
             return;
         }
