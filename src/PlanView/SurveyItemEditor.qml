@@ -364,11 +364,11 @@ Rectangle {
                 Item { Layout.fillWidth: true }
                 QGCLabel {
                     Layout.preferredWidth:  _root._fieldWidth
-                    text:                   qsTr("Frontal")
+                    text:                   qsTr("Front Lap")
                 }
                 QGCLabel {
                     Layout.preferredWidth:  _root._fieldWidth
-                    text:                   qsTr("Side")
+                    text:                   qsTr("Side Lap")
                 }
             }
 
@@ -436,6 +436,13 @@ Rectangle {
                 QGCLabel { text: qsTr("Turnaround dist") }
                 FactTextField {
                     fact:                   missionItem.turnaroundDist
+                    Layout.fillWidth:       true
+                }
+
+                QGCLabel { text: qsTr("Entry") }
+                FactComboBox {
+                    fact:                   missionItem.gridEntryLocation
+                    indexModel:             false
                     Layout.fillWidth:       true
                 }
 
@@ -543,6 +550,13 @@ Rectangle {
                 fact:                   missionItem.turnaroundDist
                 Layout.fillWidth:       true
             }
+            QGCLabel { text: qsTr("Entry") }
+            FactComboBox {
+                fact:                   missionItem.gridEntryLocation
+                indexModel:             false
+                Layout.fillWidth:       true
+            }
+
 
             QGCCheckBox {
                 text:               qsTr("Refly at 90 degree offset")

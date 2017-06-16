@@ -62,6 +62,8 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
    connect(_videoSettings->rtspUrl(), &Fact::rawValueChanged, this, &VideoManager::_rtspUrlChanged);
 
 
+   _mavlinkVideoManager = new MAVLinkVideoManager();
+   connect(_mavlinkVideoManager, &MAVLinkVideoManager::currentUriChanged, this, &VideoManager::_mavlinkUriChanged);
 #if defined(QGC_GST_STREAMING)
 #ifndef QGC_DISABLE_UVC
    // If we are using a UVC camera setup the device name
@@ -102,6 +104,7 @@ void VideoManager::_videoSourceChanged(void)
 {
     emit hasVideoChanged();
     emit isGStreamerChanged();
+    emit isMAVLinkStreamChanged();
     _restartVideo();
 }
 
@@ -113,6 +116,19 @@ void VideoManager::_udpPortChanged(void)
 void VideoManager::_rtspUrlChanged(void)
 {
     _restartVideo();
+}
+
+void VideoManager::_mavlinkUriChanged(void)
+{
+    _restartVideo();
+}
+
+//-----------------------------------------------------------------------------
+void
+VideoManager::grabImage(QString imageFile)
+{
+    _imageFile = imageFile;
+    emit imageFileChanged();
 }
 
 //-----------------------------------------------------------------------------
@@ -132,12 +148,23 @@ VideoManager::isGStreamer()
 {
 #if defined(QGC_GST_STREAMING)
     QString videoSource = _videoSettings->videoSource()->rawValue().toString();
-    return videoSource == VideoSettings::videoSourceUDP || videoSource == VideoSettings::videoSourceRTSP;
+    return videoSource == VideoSettings::videoSourceUDP || videoSource == VideoSettings::videoSourceRTSP || videoSource == VideoSettings::videoSourceMAVLink;
 #else
     return false;
 #endif
 }
 
+//-----------------------------------------------------------------------------
+bool
+VideoManager::isMAVLinkStream()
+{
+#if defined(QGC_GST_STREAMING)
+    QString videoSource = _videoSettings->videoSource()->rawValue().toString();
+    return videoSource == VideoSettings::videoSourceMAVLink;
+#else
+    return false;
+#endif
+}
 //-----------------------------------------------------------------------------
 #ifndef QGC_DISABLE_UVC
 bool
@@ -195,8 +222,10 @@ void VideoManager::_updateSettings()
 
     if (_videoSettings->videoSource()->rawValue().toString() == VideoSettings::videoSourceUDP)
         _videoReceiver->setUri(QStringLiteral("udp://0.0.0.0:%1").arg(_videoSettings->udpPort()->rawValue().toInt()));
-    else
+    else if (_videoSettings->videoSource()->rawValue().toString() == VideoSettings::videoSourceRTSP)
         _videoReceiver->setUri(_videoSettings->rtspUrl()->rawValue().toString());
+    else //MAVLink Auto Discovery
+        _videoReceiver->setUri(_mavlinkVideoManager->getVideoURI());
 }
 
 //-----------------------------------------------------------------------------

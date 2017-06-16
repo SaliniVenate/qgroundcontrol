@@ -350,17 +350,6 @@ const QVariantList& FirmwarePlugin::cameraList(const Vehicle* vehicle)
     if (_cameraList.size() == 0) {
         CameraMetaData* metaData;
 
-        metaData = new CameraMetaData(tr("Typhoon H CGO3+"),    // Camera name
-                                      6.264,                    // sensorWidth
-                                      4.698,                    // sensorHeight
-                                      4000,                     // imageWidth
-                                      3000,                     // imageHeight
-                                      14,                       // focalLength
-                                      true,                     // landscape orientation
-                                      true,                     // camera orientation is fixed
-                                      this);                    // parent
-        _cameraList.append(QVariant::fromValue(metaData));
-
         metaData = new CameraMetaData(tr("Sony ILCE-QX1"),  //http://www.sony.co.uk/electronics/interchangeable-lens-cameras/ilce-qx1-body-kit/specifications
                                       23.2,                 //http://www.sony.com/electronics/camera-lenses/sel16f28/specifications
                                       15.4,
@@ -437,20 +426,62 @@ bool FirmwarePlugin::vehicleYawsToNextWaypointInMission(const Vehicle* vehicle) 
 
 bool FirmwarePlugin::_armVehicleAndValidate(Vehicle* vehicle)
 {
-    if (!vehicle->armed()) {
-        vehicle->setArmed(true);
+    if (vehicle->armed()) {
+        return true;
     }
 
-    // Wait for vehicle to return armed state for 2 seconds
-    for (int i=0; i<20; i++) {
-        if (vehicle->armed()) {
+    bool armedChanged = false;
+
+    // We try arming 3 times
+    for (int retries=0; retries<3; retries++) {
+        vehicle->setArmed(true);
+
+        // Wait for vehicle to return armed state for 3 seconds
+        for (int i=0; i<30; i++) {
+            if (vehicle->armed()) {
+                armedChanged = true;
+                break;
+            }
+            QGC::SLEEP::msleep(100);
+            qgcApp()->processEvents(QEventLoop::ExcludeUserInputEvents);
+        }
+        if (armedChanged) {
             break;
         }
-        QGC::SLEEP::msleep(100);
-        qgcApp()->processEvents(QEventLoop::ExcludeUserInputEvents);
     }
-    return vehicle->armed();
+
+    return armedChanged;
 }
+
+bool FirmwarePlugin::_setFlightModeAndValidate(Vehicle* vehicle, const QString& flightMode)
+{
+    if (vehicle->flightMode() == flightMode) {
+        return true;
+    }
+
+    bool flightModeChanged = false;
+
+    // We try 3 times
+    for (int retries=0; retries<3; retries++) {
+        vehicle->setFlightMode(flightMode);
+
+        // Wait for vehicle to return flight mode
+        for (int i=0; i<30; i++) {
+            if (vehicle->flightMode() == flightMode) {
+                flightModeChanged = true;
+                break;
+            }
+            QGC::SLEEP::msleep(100);
+            qgcApp()->processEvents(QEventLoop::ExcludeUserInputEvents);
+        }
+        if (flightModeChanged) {
+            break;
+        }
+    }
+
+    return flightModeChanged;
+}
+
 
 void FirmwarePlugin::batteryConsumptionData(Vehicle* vehicle, int& mAhBattery, double& hoverAmps, double& cruiseAmps) const
 {

@@ -245,7 +245,11 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
                 mavlink_msg_heartbeat_decode(&message, &heartbeat);
 
                 if (message.compid == MAV_COMP_ID_CAMERA) {
-                    emit videoHeartbeatInfo(link, message);
+
+//                    emit videoHeartbeatInfo(link, message);
+
+                    emit videoHeartbeatInfo(link, message.sysid);
+
                 } else
                     emit vehicleHeartbeatInfo(link, message.sysid, message.compid, heartbeat.mavlink_version, heartbeat.autopilot, heartbeat.type);
             }

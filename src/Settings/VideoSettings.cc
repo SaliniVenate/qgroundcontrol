@@ -25,10 +25,14 @@ const char* VideoSettings::rtspUrlName =            "VideoRTSPUrl";
 const char* VideoSettings::videoSavePathName =      "VideoSavePath";
 const char* VideoSettings::videoAspectRatioName =   "VideoAspectRatio";
 const char* VideoSettings::videoGridLinesName =     "VideoGridLines";
+const char* VideoSettings::showRecControlName =     "ShowRecControl";
+const char* VideoSettings::recordingFormatName =    "RecordingFormat";
+const char* VideoSettings::maxVideoSizeName =       "MaxVideoSize";
 
-const char* VideoSettings::videoSourceNoVideo = "No Video Available";
-const char* VideoSettings::videoSourceUDP =     "UDP Video Stream";
-const char* VideoSettings::videoSourceRTSP =    "RTSP Video Stream";
+const char* VideoSettings::videoSourceNoVideo =     "No Video Available";
+const char* VideoSettings::videoSourceUDP =         "UDP Video Stream";
+const char* VideoSettings::videoSourceRTSP =        "RTSP Video Stream";
+const char* VideoSettings::videoSourceMAVLink =     "MAVLink Auto Discovery Streams";
 
 VideoSettings::VideoSettings(QObject* parent)
     : SettingsGroup(videoSettingsGroupName, QString() /* root settings group */, parent)
@@ -38,6 +42,9 @@ VideoSettings::VideoSettings(QObject* parent)
     , _videoSavePathFact(NULL)
     , _videoAspectRatioFact(NULL)
     , _gridLinesFact(NULL)
+    , _showRecControlFact(NULL)
+    , _recordingFormatFact(NULL)
+    , _maxVideoSizeFact(NULL)
 {
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
     qmlRegisterUncreatableType<VideoSettings>("QGroundControl.SettingsManager", 1, 0, "VideoSettings", "Reference only");
@@ -49,6 +56,7 @@ VideoSettings::VideoSettings(QObject* parent)
     videoSourceList.append(videoSourceUDP);
 #endif
     videoSourceList.append(videoSourceRTSP);
+    videoSourceList.append(videoSourceMAVLink);
 #endif
 #ifndef QGC_DISABLE_UVC
     QList<QCameraInfo> cameras = QCameraInfo::availableCameras();
@@ -125,4 +133,31 @@ Fact* VideoSettings::gridLines(void)
     }
 
     return _gridLinesFact;
+}
+
+Fact* VideoSettings::showRecControl(void)
+{
+    if (!_showRecControlFact) {
+        _showRecControlFact = _createSettingsFact(showRecControlName);
+    }
+
+    return _showRecControlFact;
+}
+
+Fact* VideoSettings::recordingFormat(void)
+{
+    if (!_recordingFormatFact) {
+        _recordingFormatFact = _createSettingsFact(recordingFormatName);
+    }
+
+    return _recordingFormatFact;
+}
+
+Fact* VideoSettings::maxVideoSize(void)
+{
+    if (!_maxVideoSizeFact) {
+        _maxVideoSizeFact = _createSettingsFact(maxVideoSizeName);
+    }
+
+    return _maxVideoSizeFact;
 }
