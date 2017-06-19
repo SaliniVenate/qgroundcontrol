@@ -124,14 +124,6 @@ void VideoManager::_mavlinkUriChanged(void)
 }
 
 //-----------------------------------------------------------------------------
-void
-VideoManager::grabImage(QString imageFile)
-{
-    _imageFile = imageFile;
-    emit imageFileChanged();
-}
-
-//-----------------------------------------------------------------------------
 bool
 VideoManager::hasVideo()
 {

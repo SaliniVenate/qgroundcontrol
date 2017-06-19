@@ -25,17 +25,18 @@ MAVLinkVideoManager::MAVLinkVideoManager()
     , _cameraSysid(0)
     , _cameraLink(NULL)
     , _selectedStream(-1)
-    , _currentResolution(0)
+    , _currentFrameSize(0)
 {
     _mavlink = qgcApp()->toolbox()->mavlinkProtocol();
     connect(_mavlink, &MAVLinkProtocol::videoHeartbeatInfo, this, &MAVLinkVideoManager::_videoHeartbeatInfo);
     connect(_mavlink, &MAVLinkProtocol::messageReceived, this, &MAVLinkVideoManager::_mavlinkMessageReceived);
 
-    _resolutionList.append(new Resolution("Default", 0, 0));
-    _resolutionList.append(new Resolution("4K (3840x2160)", 3840, 2160));
-    _resolutionList.append(new Resolution("1080p (1920x1080)", 1920, 1080));
-    _resolutionList.append(new Resolution("720p (1280x720)", 1280, 720));
-    _resolutionList.append(new Resolution("VGA (640x480)", 640, 480));
+    _frameSizeList.append(new FrameSize("Default", 0, 0));
+    _frameSizeList.append(new FrameSize("VGA (tentative)", 640, 480));
+    _frameSizeList.append(new FrameSize("720p (tentative)", 1280, 720));
+    _frameSizeList.append(new FrameSize("1080p (tentative)", 1920, 1080));
+    _frameSizeList.append(new FrameSize("4K (tentative)", 3840, 2160));
+
 }
 
 //-----------------------------------------------------------------------------
@@ -196,7 +197,7 @@ void MAVLinkVideoManager::setCurrentFrameSize(int frameSize)
 void MAVLinkVideoManager::refreshVideoProvider()
 {
     _selectedStream = -1;
-    _currentResolution = 0;
+    _currentFrameSize = 0;
     _cameraSysid = 0;
 
     _streamList.clear();
